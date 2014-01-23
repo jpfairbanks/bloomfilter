@@ -1,4 +1,4 @@
-bloomfilter.go
+bloomfilter
 ==============
 
 A Bloom Filter Implementation in Go
