@@ -2,6 +2,7 @@ package bloomfilter
 
 import (
 	"encoding/binary"
+	"fmt"
 	"testing"
 )
 
@@ -16,6 +17,31 @@ func TestBasic(t *testing.T) {
 
 	if bf.Check(d2) {
 		t.Errorf("d2 should be absent from the BloomFilter")
+	}
+}
+
+func TestStreamingBF(t *testing.T) {
+	k, bfSize := 4, 1000
+	bf := NewBloomFilter(k, bfSize)
+	var errRate float64
+	tol := 1 / 10.0
+	var i uint64
+	var count uint64 = 100
+	var num uint64
+	for i = 0; i < count; i++ {
+		elt := make([]byte, 10)
+		num = 1 << ((uint8(i) - 1) % 32)
+		num += i
+		binary.PutUvarint(elt, num)
+
+		if !bf.Check(elt) {
+			bf.Add(elt)
+			fmt.Println(num)
+		}
+		errRate = bf.FalsePositiveRate()
+		if errRate > tol {
+			fmt.Println("False Positive Rate is too high: ", errRate)
+		}
 	}
 }
 
